@@ -1,0 +1,32 @@
+__complete_apps () {
+    appctl list-applications
+}
+
+__complete_actions () {
+    appctl list-actions $1
+}
+
+_appctl () {
+    local cur=${COMP_WORDS[COMP_CWORD]} prev=${COMP_WORDS[COMP_CWORD-1]}
+    local i verb comps app
+
+    verb=${COMP_WORDS[1]}
+    if [[ $COMP_CWORD -eq 1 ]]; then
+        comps="activate-action start quit help"
+
+    elif [[ $COMP_CWORD -eq 2 && $verb != "list-applications" ]]; then
+        comps=$(__complete_apps )
+
+    elif [[ $verb == "activate-action" ]]; then
+        app=${COMP_WORDS[2]}
+        comps=$(__complete_actions $app )
+
+    else
+        comps=""
+    fi
+
+    COMPREPLY=( $(compgen -W '$comps' -- "$cur") )
+    return 0
+}
+
+complete -F _appctl appctl
